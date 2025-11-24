@@ -6,6 +6,8 @@ class Chatbot:
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModelForCausalLM.from_pretrained(model_name)
 
+        self.chat_history_ids = None
+
     def encode_prompt(self, prompt: str):
         return self.tokenizer(prompt, return_tensors="pt")
     
@@ -15,5 +17,17 @@ class Chatbot:
     def generate_reply(self, prompt: str) -> str:
         prompt = prompt + "\n"
         encoded = self.encode_prompt(prompt)
+
+        output_tokens = self.model.generate(
+            encoded["input_ids"],
+            pad_token_id=self.tokenizer.eos_token_id,
+            do_sample=True,
+            temperature=0.9,
+            top_p=0.8,
+            top_k=50
+        )
+
+        
+
         return encoded
 
